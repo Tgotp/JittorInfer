@@ -867,62 +867,85 @@ bool llama_model::load_tensors(llama_model_loader & ml) {
                 break;
             case LLM_ARCH_QWEN:
                 {
-                    tok_embd = create_tensor({n_embd, n_vocab}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_TOKEN_EMBD, "weight"), 0);
+                    tok_embd =
+                        create_tensor({ n_embd, n_vocab }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_TOKEN_EMBD, "weight"), 0);
 
                     // output
-                    output_norm = create_tensor({n_embd}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_OUTPUT_NORM, "weight"),  0);
-                    output      = create_tensor({n_embd, n_vocab}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_OUTPUT,      "weight"), 0);
+                    output_norm = create_tensor({ n_embd }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_OUTPUT_NORM, "weight"), 0);
+                    output = create_tensor({ n_embd, n_vocab }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_OUTPUT, "weight"), 0);
 
                     for (int i = 0; i < n_layer; ++i) {
                         auto & layer = layers[i];
 
-                        layer.attn_norm = create_tensor({n_embd}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_NORM, "weight", i), 0);
+                        layer.attn_norm =
+                            create_tensor({ n_embd }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_NORM, "weight", i), 0);
 
-                        layer.wqkv = create_tensor({n_embd, n_embd*3},LLM_SPLIT_REPEAT , tn(LLM_TENSOR_ATTN_QKV, "weight", i),  0);
-                        layer.bqkv = create_tensor({n_embd*3}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_QKV, "bias", i),   0);
-                        layer.wo   = create_tensor({n_embd, n_embd}, LLM_SPLIT_REPEAT,tn(LLM_TENSOR_ATTN_OUT, "weight", i), 0);
+                        layer.wqkv = create_tensor({ n_embd, n_embd * 3 }, LLM_SPLIT_REPEAT,
+                                                   tn(LLM_TENSOR_ATTN_QKV, "weight", i), 0);
+                        layer.bqkv =
+                            create_tensor({ n_embd * 3 }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_QKV, "bias", i), 0);
+                        layer.wo = create_tensor({ n_embd, n_embd }, LLM_SPLIT_REPEAT,
+                                                 tn(LLM_TENSOR_ATTN_OUT, "weight", i), 0);
 
-                        layer.ffn_norm = create_tensor({n_embd}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_NORM, "weight", i),  0);
+                        layer.ffn_norm =
+                            create_tensor({ n_embd }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_NORM, "weight", i), 0);
 
-                        layer.ffn_gate = create_tensor({n_embd, n_ff/2}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_GATE, "weight", i), 0);
-                        layer.ffn_down = create_tensor({n_ff/2, n_embd}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_DOWN, "weight", i), 0);
-                        layer.ffn_up   = create_tensor({n_embd, n_ff/2}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_UP,   "weight", i), 0);
+                        layer.ffn_gate = create_tensor({ n_embd, n_ff / 2 }, LLM_SPLIT_REPEAT,
+                                                       tn(LLM_TENSOR_FFN_GATE, "weight", i), 0);
+                        layer.ffn_down = create_tensor({ n_ff / 2, n_embd }, LLM_SPLIT_REPEAT,
+                                                       tn(LLM_TENSOR_FFN_DOWN, "weight", i), 0);
+                        layer.ffn_up   = create_tensor({ n_embd, n_ff / 2 }, LLM_SPLIT_REPEAT,
+                                                       tn(LLM_TENSOR_FFN_UP, "weight", i), 0);
                     }
-                } break;
+                }
+                break;
             case LLM_ARCH_QWEN2:
             case LLM_ARCH_QWEN2VL:
                 {
-                    tok_embd = create_tensor({n_embd, n_vocab}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_TOKEN_EMBD, "weight"), 0);
+                    tok_embd =
+                        create_tensor({ n_embd, n_vocab }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_TOKEN_EMBD, "weight"), 0);
 
                     // output
-                    output_norm = create_tensor({n_embd}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_OUTPUT_NORM, "weight"), 0);
-                    output      = create_tensor({n_embd, n_vocab}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_OUTPUT,      "weight"), TENSOR_NOT_REQUIRED);
+                    output_norm = create_tensor({ n_embd }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_OUTPUT_NORM, "weight"), 0);
+                    output      = create_tensor({ n_embd, n_vocab }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_OUTPUT, "weight"),
+                                                TENSOR_NOT_REQUIRED);
                     // if output is NULL, init from the input tok embed
                     if (output == NULL) {
-                        output = create_tensor({n_embd, n_vocab}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_TOKEN_EMBD, "weight"), TENSOR_DUPLICATED);
+                        output = create_tensor({ n_embd, n_vocab }, LLM_SPLIT_REPEAT,
+                                               tn(LLM_TENSOR_TOKEN_EMBD, "weight"), TENSOR_DUPLICATED);
                     }
 
                     for (int i = 0; i < n_layer; ++i) {
                         auto & layer = layers[i];
 
-                        layer.attn_norm = create_tensor({n_embd}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_NORM, "weight", i), 0);
-                        layer.wq = create_tensor({n_embd, n_embd}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_Q,   "weight", i), 0);
-                        layer.wk = create_tensor({n_embd, n_embd_gqa}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_K,   "weight", i), 0);
-                        layer.wv = create_tensor({n_embd, n_embd_gqa}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_V,   "weight", i), 0);
-                        layer.wo = create_tensor({n_embd, n_embd}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_OUT, "weight", i), 0);
+                        layer.attn_norm =
+                            create_tensor({ n_embd }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_NORM, "weight", i), 0);
+                        layer.wq =
+                            create_tensor({ n_embd, n_embd }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_Q, "weight", i), 0);
+                        layer.wk = create_tensor({ n_embd, n_embd_gqa }, LLM_SPLIT_REPEAT,
+                                                 tn(LLM_TENSOR_ATTN_K, "weight", i), 0);
+                        layer.wv = create_tensor({ n_embd, n_embd_gqa }, LLM_SPLIT_REPEAT,
+                                                 tn(LLM_TENSOR_ATTN_V, "weight", i), 0);
+                        layer.wo = create_tensor({ n_embd, n_embd }, LLM_SPLIT_REPEAT,
+                                                 tn(LLM_TENSOR_ATTN_OUT, "weight", i), 0);
 
                         // optional bias tensors
-                        layer.bq = create_tensor({n_embd}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_Q,   "bias", i), 0);
-                        layer.bk = create_tensor({n_embd_gqa}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_K,   "bias", i), 0);
-                        layer.bv = create_tensor({n_embd_gqa}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_V,   "bias", i), 0);
+                        layer.bq = create_tensor({ n_embd }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_Q, "bias", i), 0);
+                        layer.bk = create_tensor({ n_embd_gqa }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_K, "bias", i), 0);
+                        layer.bv = create_tensor({ n_embd_gqa }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_ATTN_V, "bias", i), 0);
 
-                        layer.ffn_norm = create_tensor({n_embd}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_NORM, "weight", i), 0);
+                        layer.ffn_norm =
+                            create_tensor({ n_embd }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_NORM, "weight", i), 0);
 
-                        layer.ffn_gate = create_tensor({n_embd,   n_ff}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_GATE, "weight", i), 0);
-                        layer.ffn_down = create_tensor({  n_ff, n_embd}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_DOWN, "weight", i), 0);
-                        layer.ffn_up   = create_tensor({n_embd,   n_ff}, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_UP,   "weight", i), 0);
+                        layer.ffn_gate =
+                            create_tensor({ n_embd, n_ff }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_GATE, "weight", i), 0);
+                        layer.ffn_down =
+                            create_tensor({ n_ff, n_embd }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_DOWN, "weight", i), 0);
+                        layer.ffn_up =
+                            create_tensor({ n_embd, n_ff }, LLM_SPLIT_REPEAT, tn(LLM_TENSOR_FFN_UP, "weight", i), 0);
                     }
-                } break;
+                }
+                break;
             default:
                 throw std::runtime_error("unknown architecture");
         }
@@ -1273,17 +1296,23 @@ void llama_model::load_hparams(llama_model_loader & ml) {
                 }
             }
             break;
-        
+
         case LLM_ARCH_QWEN:
             {
                 ml.get_key(LLM_KV_ATTENTION_LAYERNORM_RMS_EPS, hparams.f_norm_rms_eps);
 
                 switch (hparams.n_layer) {
-                    case 32: type = LLM_TYPE_7B; break;
-                    case 40: type = LLM_TYPE_13B; break;
-                    default: type = LLM_TYPE_UNKNOWN;
+                    case 32:
+                        type = LLM_TYPE_7B;
+                        break;
+                    case 40:
+                        type = LLM_TYPE_13B;
+                        break;
+                    default:
+                        type = LLM_TYPE_UNKNOWN;
                 }
-            } break;
+            }
+            break;
         case LLM_ARCH_QWEN2VL:
             {
                 ml.get_key_or_arr(LLM_KV_ROPE_DIMENSION_SECTIONS, hparams.rope_sections, 4, true);
@@ -1293,29 +1322,53 @@ void llama_model::load_hparams(llama_model_loader & ml) {
             {
                 ml.get_key(LLM_KV_ATTENTION_LAYERNORM_RMS_EPS, hparams.f_norm_rms_eps);
                 switch (hparams.n_layer) {
-                    case 24: type = hparams.n_embd == 1024 ? LLM_TYPE_0_5B : LLM_TYPE_1B; break;
-                    case 28: type = hparams.n_embd == 1536 ? LLM_TYPE_1_5B : LLM_TYPE_7B; break;
-                    case 32: type = LLM_TYPE_7B; break;
-                    case 36: type = LLM_TYPE_3B; break;
-                    case 40: type = hparams.n_head() == 20 ? LLM_TYPE_4B : LLM_TYPE_13B; break;
-                    case 48: type = LLM_TYPE_14B; break;
-                    case 64: type = LLM_TYPE_32B; break;
-                    case 80: type = LLM_TYPE_70B; break;
-                    default: type = LLM_TYPE_UNKNOWN;
+                    case 24:
+                        type = hparams.n_embd == 1024 ? LLM_TYPE_0_5B : LLM_TYPE_1B;
+                        break;
+                    case 28:
+                        type = hparams.n_embd == 1536 ? LLM_TYPE_1_5B : LLM_TYPE_7B;
+                        break;
+                    case 32:
+                        type = LLM_TYPE_7B;
+                        break;
+                    case 36:
+                        type = LLM_TYPE_3B;
+                        break;
+                    case 40:
+                        type = hparams.n_head() == 20 ? LLM_TYPE_4B : LLM_TYPE_13B;
+                        break;
+                    case 48:
+                        type = LLM_TYPE_14B;
+                        break;
+                    case 64:
+                        type = LLM_TYPE_32B;
+                        break;
+                    case 80:
+                        type = LLM_TYPE_70B;
+                        break;
+                    default:
+                        type = LLM_TYPE_UNKNOWN;
                 }
-            } break;
+            }
+            break;
         case LLM_ARCH_QWEN2MOE:
             {
-                ml.get_key(LLM_KV_EXPERT_FEED_FORWARD_LENGTH,        hparams.n_ff_exp, false);
+                ml.get_key(LLM_KV_EXPERT_FEED_FORWARD_LENGTH, hparams.n_ff_exp, false);
                 ml.get_key(LLM_KV_EXPERT_SHARED_FEED_FORWARD_LENGTH, hparams.n_ff_shexp, false);
 
                 ml.get_key(LLM_KV_ATTENTION_LAYERNORM_RMS_EPS, hparams.f_norm_rms_eps);
                 switch (hparams.n_layer) {
-                    case 24: type = LLM_TYPE_A2_7B; break;
-                    case 28: type = LLM_TYPE_57B_A14B; break;
-                    default: type = LLM_TYPE_UNKNOWN;
+                    case 24:
+                        type = LLM_TYPE_A2_7B;
+                        break;
+                    case 28:
+                        type = LLM_TYPE_57B_A14B;
+                        break;
+                    default:
+                        type = LLM_TYPE_UNKNOWN;
                 }
-            } break;
+            }
+            break;
         default:
             throw std::runtime_error("unsupported model architecture");
     }
