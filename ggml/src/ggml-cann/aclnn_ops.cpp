@@ -5454,7 +5454,6 @@ void ggml_cann_rope(ggml_backend_cann_context& ctx, ggml_tensor* dst) {
     ACL_CHECK(aclDestroyTensor(acl_dst));
 }
 
-
 void ggml_cann_flash_attn_prompt(ggml_backend_cann_context& ctx,
                                  ggml_tensor* dst) {
     ggml_tensor* query = dst->src[0];
